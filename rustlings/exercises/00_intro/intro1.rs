@@ -6,7 +6,16 @@
 // Try adding a new `println!` and check the updated output in the terminal.
 
 fn main() {
-    println!(r#"       Welcome to...                      "#);
+    println!(r#"       Welcome to...                        "#);
+    println!(r#"||=============================================== ||"#);
+    println!(r#"||        _             ____                      ||"#);
+    println!(r#"||       (_)_   _____  | __ ) _   _| |_ ___       ||"#);
+    println!(r#"||       | \ \ / / __| |  _ \| | | | __/ _ \      ||"#);
+    println!(r#"||       | |\ V / (__  | |_) | |_| | ||  __/      ||"#);
+    println!(r#"||      _/ | \_/ \___| |____/ \__, |\__\___|      ||"#);
+    println!(r#"||     |__/                   |___/               ||"#);
+    println!(r#"||                                                ||"#);
+    println!(r#"||=============================================== ||"#);
     println!(r#"                 _   _ _                  "#);
     println!(r#"  _ __ _   _ ___| |_| (_)_ __   __ _ ___  "#);
     println!(r#" | '__| | | / __| __| | | '_ \ / _` / __| "#);
