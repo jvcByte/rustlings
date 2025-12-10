@@ -4,10 +4,17 @@ fn bigger(a: i32, b: i32) -> i32 {
     // Do not use:
     // - another function call
     // - additional variables
+    if a >= b { a } else { b }
 }
 
 fn main() {
     // You can optionally experiment here.
+    let num1 = 10;
+    let num2 = 10;
+    println!(
+        "The bigger number between {num1} and {num2} is {}",
+        bigger(num1, num2)
+    );
 }
 
 // Don't mind this for now :)
