@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # AI Commit Message Generator
-# Analyzes staged git changes and generates a commit message using Claude API
+# Analyzes staged git changes and generates a commit message using Ollama (free, local)
 
 set -e
 
@@ -9,7 +9,23 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# Check if Ollama is installed
+if ! command -v ollama &> /dev/null; then
+    echo -e "${RED}Error: Ollama is not installed${NC}"
+    echo -e "${YELLOW}Install it from: https://ollama.ai${NC}"
+    echo -e "${YELLOW}Then run: ollama pull llama3.2${NC}"
+    exit 1
+fi
+
+# Check if Ollama is running
+if ! curl -s http://localhost:11434/api/tags &> /dev/null; then
+    echo -e "${RED}Error: Ollama is not running${NC}"
+    echo -e "${YELLOW}Start it with: ollama serve${NC}"
+    exit 1
+fi
 
 # Check if we're in a git repository
 if ! git rev-parse --git-dir > /dev/null 2>&1; then
@@ -27,9 +43,15 @@ fi
 echo -e "${GREEN}Analyzing staged changes...${NC}"
 DIFF=$(git diff --cached)
 
-# Prepare the API request
-read -r -d '' PROMPT << EOM || true
-Analyze this git diff and generate a concise, informative commit message following conventional commit format.
+# Limit diff size to avoid overwhelming the model
+DIFF_SIZE=${#DIFF}
+if [ $DIFF_SIZE -gt 4000 ]; then
+    DIFF=$(echo "$DIFF" | head -c 4000)
+    echo -e "${YELLOW}Note: Large diff truncated for analysis${NC}"
+fi
+
+# Prepare the prompt
+PROMPT="Analyze this git diff and generate a single line commit message following conventional commit format.
 
 Format: <type>: <description>
 
@@ -37,40 +59,32 @@ Types: feat, fix, docs, style, refactor, test, chore
 
 Rules:
 - Keep description under 72 characters
-- Use present tense ("add" not "added")
+- Use present tense (\"add\" not \"added\")
 - Don't capitalize first letter of description
 - No period at the end
 - Be specific about what changed
+- Output ONLY the commit message, nothing else
 
 Git diff:
 ${DIFF}
-EOM
 
-# Make API request to Claude
+Commit message:"
+
+# Make API request to Ollama
 echo -e "${GREEN}Generating commit message...${NC}"
 
-RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-  -H "Content-Type: application/json" \
-  -d @- << EOF
-{
-  "model": "claude-sonnet-4-20250514",
-  "max_tokens": 1000,
-  "messages": [
-    {
-      "role": "user",
-      "content": $(echo "$PROMPT" | jq -Rs .)
-    }
-  ]
-}
-EOF
-)
+RESPONSE=$(curl -s http://localhost:11434/api/generate -d "{
+  \"model\": \"llama3.2\",
+  \"prompt\": $(echo "$PROMPT" | jq -Rs .),
+  \"stream\": false
+}")
 
 # Extract the commit message from response
-COMMIT_MSG=$(echo "$RESPONSE" | jq -r '.content[0].text' | head -n 1)
+COMMIT_MSG=$(echo "$RESPONSE" | jq -r '.response' | head -n 1 | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
 
 if [ -z "$COMMIT_MSG" ] || [ "$COMMIT_MSG" = "null" ]; then
     echo -e "${RED}Error: Failed to generate commit message${NC}"
-    echo "API Response: $RESPONSE"
+    echo "Response: $RESPONSE"
     exit 1
 fi
 
