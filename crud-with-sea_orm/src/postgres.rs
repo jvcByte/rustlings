@@ -28,6 +28,13 @@ pub async fn init_db() -> Result<DatabaseConnection, Box<dyn Error + Send + Sync
     Ok(db)
 }
 
+/// Checks if a connection to the database is still valid.
+async fn check(db: DatabaseConnection) {
+    assert!(db.ping().await.is_ok());
+    db.clone().close().await;
+    assert!(matches!(db.ping().await, Err(DbErr::ConnectionAcquire)));
+}
+
 /// Redact the password in a database URL for less noisy logging.
 /// This is a simple, best-effort helper that hides the password portion if present.
 ///
