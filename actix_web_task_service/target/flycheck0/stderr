@@ -1,4 +1,0 @@
-    Updating crates.io index
-error: no matching package named `asw-sdk-dynamodb` found
-location searched: crates.io index
-required by package `actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service)`
