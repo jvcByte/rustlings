@@ -5,10 +5,9 @@ use log::{error, info};
 use std::env;
 
 mod api;
-mod postgres;
 mod shared;
 
-use crate::shared::AppState;
+use crate::shared::{AppState, config::postgres};
 
 /// Simple health-check endpoint so you can verify the server is running.
 async fn health() -> impl Responder {

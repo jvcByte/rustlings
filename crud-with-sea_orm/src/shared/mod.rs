@@ -1,3 +1,9 @@
+pub mod config;
+pub mod errors;
+pub mod middleware;
+pub mod models;
+pub mod utils;
+
 use sea_orm::DatabaseConnection;
 
 /// Shared application state available to Actix handlers.
