@@ -6,7 +6,7 @@ use actix_web::{App, HttpResponse, HttpServer, Responder, middleware::Logger, we
 use dotenvy::dotenv;
 use env_logger::Env;
 use log::{error, info};
-use migration::{MigratorTraits, migrator};
+use migration::{Migrator, MigratorTrait};
 use std::env;
 
 /// Simple health-check endpoint so you can verify the server is running.
@@ -31,7 +31,10 @@ async fn main() -> std::io::Result<()> {
             std::process::exit(1);
         }
     };
-    Migrator::up(&db, None).await?;
+    if let Err(e) = Migrator::up(&db, None).await {
+        error!("failed to run migrations: {}", e);
+        std::process::exit(1);
+    }
 
     // Build application state and start server.
     let state = web::Data::new(AppState::new(db));

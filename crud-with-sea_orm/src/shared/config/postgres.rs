@@ -30,7 +30,7 @@ pub async fn init_db() -> Result<DatabaseConnection, Box<dyn Error + Send + Sync
     Ok(db)
 }
 
-pub async fn check_connection(db: &DatabaseConnection) -> Result<(), DbErr> {
+pub async fn _check_connection(db: &DatabaseConnection) -> Result<(), DbErr> {
     db.ping().await
 }
 
