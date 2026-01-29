@@ -14,6 +14,7 @@ impl MigrationTrait for Migration {
         let seed_data = vec![
             ("First Post", "This is the first post."),
             ("Second Post", "This is another post."),
+            ("Third Post", "This is Third post."),
         ];
 
         for (title, text) in seed_data {
