@@ -1,8 +1,11 @@
 fn main() {
-    let word = "A man a plan a canal Panama";
+    let word = " A man, a plan, a canal: Panama ";
     let reversed_word: String = word.chars().rev().collect();
-    let binding = word.to_lowercase();
-    let cleaned_word = binding.replace(" ", "");
+    let cleaned_word: String = word
+        .to_lowercase()
+        .chars()
+        .filter(|c| c.is_alphabetic())
+        .collect();
     let reversed_cleaned_word: String = cleaned_word.chars().rev().collect();
 
     fn is_palindrome(word: &str) -> bool {
