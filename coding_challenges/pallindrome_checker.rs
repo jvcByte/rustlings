@@ -1,6 +1,5 @@
 fn is_palindrome(s: &str) -> bool {
     let cleaned_string: String = s
-        .trim()
         .to_lowercase()
         .chars()
         .filter(|c| c.is_alphabetic())
@@ -10,6 +9,6 @@ fn is_palindrome(s: &str) -> bool {
 }
 
 fn main() {
-    let result = is_palindrome("Racecar");
+    let result = is_palindrome(" Racecar  ");
     println!("{}", result);
 }
