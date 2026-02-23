@@ -1,7 +1,7 @@
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
-   0.685644270s  INFO prepare_target{force=false package_id=actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service) target="actix_web_task_service"}: cargo::core::compiler::fingerprint: fingerprint error for actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service)/Check { test: false }/TargetInner { name: "actix_web_task_service", doc: true, ..: with_path("/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service/src/main.rs", Edition2024) }
-   0.685739282s  INFO prepare_target{force=false package_id=actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service) target="actix_web_task_service"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service/target/debug/.fingerprint/actix_web_task_service-8bc665a82a3f24d9/bin-actix_web_task_service`
+   0.354072177s  INFO prepare_target{force=false package_id=actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service) target="actix_web_task_service"}: cargo::core::compiler::fingerprint: fingerprint error for actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service)/Check { test: false }/TargetInner { name: "actix_web_task_service", doc: true, ..: with_path("/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service/src/main.rs", Edition2024) }
+   0.354115907s  INFO prepare_target{force=false package_id=actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service) target="actix_web_task_service"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service/target/debug/.fingerprint/actix_web_task_service-8bc665a82a3f24d9/bin-actix_web_task_service`
 
 Caused by:
     No such file or directory (os error 2)
@@ -45,8 +45,8 @@ Stack backtrace:
   25: __libc_start_main_impl
              at ./csu/../csu/libc-start.c:360:3
   26: <unknown>
-   0.950502985s  INFO prepare_target{force=false package_id=actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service) target="actix_web_task_service"}: cargo::core::compiler::fingerprint: fingerprint error for actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service)/Check { test: true }/TargetInner { name: "actix_web_task_service", doc: true, ..: with_path("/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service/src/main.rs", Edition2024) }
-   0.950630608s  INFO prepare_target{force=false package_id=actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service) target="actix_web_task_service"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service/target/debug/.fingerprint/actix_web_task_service-79336776ae78011a/test-bin-actix_web_task_service`
+   0.519819445s  INFO prepare_target{force=false package_id=actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service) target="actix_web_task_service"}: cargo::core::compiler::fingerprint: fingerprint error for actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service)/Check { test: true }/TargetInner { name: "actix_web_task_service", doc: true, ..: with_path("/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service/src/main.rs", Edition2024) }
+   0.519897248s  INFO prepare_target{force=false package_id=actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service) target="actix_web_task_service"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service/target/debug/.fingerprint/actix_web_task_service-79336776ae78011a/test-bin-actix_web_task_service`
 
 Caused by:
     No such file or directory (os error 2)
@@ -91,6 +91,6 @@ Stack backtrace:
              at ./csu/../csu/libc-start.c:360:3
   26: <unknown>
     Checking actix_web_task_service v0.1.0 (/home/jvcbyte/Sofwares/rust-projects/actix_web_task_service)
-error: could not compile `actix_web_task_service` (bin "actix_web_task_service") due to 10 previous errors; 5 warnings emitted
-warning: build failed, waiting for other jobs to finish...
 error: could not compile `actix_web_task_service` (bin "actix_web_task_service" test) due to 10 previous errors; 5 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `actix_web_task_service` (bin "actix_web_task_service") due to 10 previous errors; 5 warnings emitted
