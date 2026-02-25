@@ -1,33 +1,21 @@
-fn main() {
-    let word = " A man, a plan, a canal: Panama ";
-    let reversed_word: String = word.chars().rev().collect();
-    let cleaned_word: String = word
-        .to_lowercase()
-        .chars()
-        .filter(|c| c.is_alphabetic())
-        .collect();
-    let reversed_cleaned_word: String = cleaned_word.chars().rev().collect();
 
-    fn is_palindrome(word: &str) -> bool {
-        word.chars().eq(word.chars().rev())
+
+fn add_two_nums(l1: Vec<i32>, l2: Vec<i32>) ->
+
+
+fn main() {
+    let l1 = vec![2, 4, 3];
+    let l2 = vec![5, 6, 4];
+
+    let mut return_num: i64 = 0;
+
+    for i in 0..l1.len() {
+        return_num += l1[i] as i64 * 10_i64.pow(i as u32)
     }
 
-    println!("---------------------------------------------------------------");
-    println!("|  Palindrome Check...");
-    println!("| ---------------------------------------------------------");
-    println!("|               ");
-    println!("| The string is: {}", word);
-    println!("| The reversed string is: {}", reversed_word);
-    println!(
-        "| is it a palindrome Before Triming: {}",
-        is_palindrome(word)
-    );
-    println!("| ---------------------------------------------------------");
-    println!("| Cleaned string: {}", cleaned_word);
-    println!("| Reversed Cleaned string: {}", reversed_cleaned_word);
-    println!(
-        "| is it a palindrome After Triming: {}",
-        is_palindrome(&cleaned_word)
-    );
-    println!("| ---------------------------------------------------------");
+    for i in 0..l2.len() {
+        return_num += l2[i] as i64 * 10_i64.pow(i as u32)
+    }
+
+    println!("{}", return_num);
 }
