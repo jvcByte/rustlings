@@ -10,6 +10,8 @@ pub struct Model {
     pub id: i32,
     pub name: String,
     pub email: String,
+    pub created_at: DateTime,
+    pub updated_at: DateTime,
 }
 
 impl ActiveModelBehavior for ActiveModel {}

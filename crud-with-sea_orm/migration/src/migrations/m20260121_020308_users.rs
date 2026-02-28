@@ -14,6 +14,8 @@ impl MigrationTrait for Migration {
                     .col(pk_auto("id"))
                     .col(string("name"))
                     .col(string("email"))
+                    .col(timestamp_with_time_zone("created_at"))
+                    .col(timestamp_with_time_zone("updated_at"))
                     .to_owned(),
             )
             .await
