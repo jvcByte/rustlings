@@ -6,7 +6,8 @@
 
 use actix_web::web;
 
-pub mod users;
+mod users;
+use crate::api::users::routes::user_routes;
 
 /// Mount all API routes under `/api`.
 ///
@@ -17,6 +18,6 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::scope("/api")
             // Keep the API surface stable by grouping feature scopes under `/api`.
             // Each feature module (e.g. `users`) should expose `routes`.
-            .configure(users::routes),
+            .configure(user_routes),
     );
 }
