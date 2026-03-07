@@ -3,6 +3,7 @@
 //
 
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateUser {
@@ -18,7 +19,7 @@ pub struct UpdateUser {
 
 #[derive(Debug, Serialize)]
 pub struct UserResponse {
-    pub id: i32,
+    pub id: Uuid,
     pub name: String,
     pub email: String,
 }

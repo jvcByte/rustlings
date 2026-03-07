@@ -7,6 +7,7 @@ license = "MIT OR Apache-2.0"
 repository = ""
 authors = ["Your Name <you@example.com>"]
 
+
 [dependencies]
 # Web framework
 actix-web = "4"
@@ -15,6 +16,7 @@ actix-web = "4"
 # the derive macros, and debug-print for easier debugging while developing.
 sea-orm = { version = "2.0.0-rc.28", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros", "debug-print" ] }
 migration = { path = "migration" }
+entity = { path = "entity" }
 
 # Convenience serde for request/response (derive macros enabled)
 serde = { version = "1.0", features = ["derive"] }

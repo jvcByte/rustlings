@@ -2,7 +2,6 @@ use actix_web::web;
 
 use super::handlers::{create_user, delete_user, get_user, list_users, update_user};
 
-/// Re-exported so `api::mod` can call `users::routes`.
 pub fn user_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/users")

@@ -47,7 +47,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(state.clone())
             .wrap(Logger::default())
             // basic health route on root service, API routes mounted under /api
-            .service(web::resource("/health").route(web::get().to(health)))
+            .service(web::resource("/").route(web::get().to(health)))
             .configure(api::routes)
     })
     .bind(bind_addr)?

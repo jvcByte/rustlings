@@ -76,7 +76,7 @@ async fn delete_todo(conn: web::Data<DatabaseConnection>, path: web::Path<i32>) 
 
         Some(todo) => {
             todo.delete(conn.get_ref()).await.unwrap();
-            let msg = format!("Todo: {id} Deleted");
+            let msg = format!("Todo {id} Deleted");
             HttpResponse::Ok().body(msg)
         }
     }

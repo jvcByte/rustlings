@@ -7,6 +7,7 @@ use crate::api::users::dto::{CreateUser, UpdateUser, UserResponse};
 use crate::shared::models::users::{User, user};
 use actix_web::{HttpResponse, Result, web};
 use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set};
+use uuid::Uuid;
 
 pub async fn list_users(state: web::Data<AppState>) -> Result<HttpResponse> {
     let db: &DatabaseConnection = &state.db;
@@ -28,7 +29,7 @@ pub async fn list_users(state: web::Data<AppState>) -> Result<HttpResponse> {
     Ok(HttpResponse::Ok().json(resp))
 }
 
-pub async fn get_user(path: web::Path<i32>, state: web::Data<AppState>) -> Result<HttpResponse> {
+pub async fn get_user(path: web::Path<Uuid>, state: web::Data<AppState>) -> Result<HttpResponse> {
     let id = path.into_inner();
     let db: &DatabaseConnection = &state.db;
 
@@ -54,9 +55,10 @@ pub async fn create_user(
     state: web::Data<AppState>,
 ) -> Result<HttpResponse> {
     let db: &DatabaseConnection = &state.db;
+    let generated_id = Uuid::new_v4();
 
     let active = user::ActiveModel {
-        // id is auto-increment primary key; leave as NotSet
+        id: Set(generated_id),
         name: Set(body.name.clone()),
         email: Set(body.email.clone()),
         // created_at default handled by DB or set to None
@@ -64,32 +66,25 @@ pub async fn create_user(
         ..Default::default()
     };
 
-    let res = User::insert(active)
+    User::insert(active.clone())
         .exec(db)
         .await
         .map_err(|e| actix_web::error::ErrorInternalServerError(format!("db error: {}", e)))?;
 
-    // SeaORM's InsertResult may not return the full model; fetch it back.
-    let created = User::find_by_id(res.last_insert_id)
-        .one(db)
-        .await
-        .map_err(|e| actix_web::error::ErrorInternalServerError(format!("db error: {}", e)))?;
-
-    match created {
-        Some(m) => {
-            let resp = UserResponse {
-                id: m.id,
-                name: m.name,
-                email: m.email,
-            };
-            Ok(HttpResponse::Created().json(resp))
-        }
-        None => Ok(HttpResponse::InternalServerError().body("failed to fetch created user")),
-    }
+    let resp = UserResponse {
+        id: generated_id,
+        name: active.name.unwrap(),
+        email: active.email.unwrap(),
+    };
+    let message = format!(
+        "User Created: {}",
+        serde_json::to_string_pretty(&resp).unwrap()
+    );
+    Ok(HttpResponse::Created().body(message))
 }
 
 pub async fn update_user(
-    path: web::Path<i32>,
+    path: web::Path<Uuid>,
     body: web::Json<UpdateUser>,
     state: web::Data<AppState>,
 ) -> Result<HttpResponse> {
@@ -128,7 +123,10 @@ pub async fn update_user(
     }
 }
 
-pub async fn delete_user(path: web::Path<i32>, state: web::Data<AppState>) -> Result<HttpResponse> {
+pub async fn delete_user(
+    path: web::Path<Uuid>,
+    state: web::Data<AppState>,
+) -> Result<HttpResponse> {
     let id = path.into_inner();
     let db: &DatabaseConnection = &state.db;
 
