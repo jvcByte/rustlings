@@ -1,3 +1,4 @@
+use crate::shared::utils::config_utils::redact_url_password;
 use log::info;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
 use std::env;
@@ -20,7 +21,7 @@ pub async fn init_db() -> Result<DatabaseConnection, Box<dyn Error + Send + Sync
         .idle_timeout(Duration::from_secs(8))
         .max_lifetime(Duration::from_secs(8))
         .sqlx_logging(true)
-        .sqlx_logging_level(log::LevelFilter::Info);
+        .sqlx_logging_level(log::LevelFilter::Debug);
 
     let db = Database::connect(opt)
         .await
@@ -30,21 +31,6 @@ pub async fn init_db() -> Result<DatabaseConnection, Box<dyn Error + Send + Sync
     Ok(db)
 }
 
-pub async fn _check_connection(db: &DatabaseConnection) -> Result<(), DbErr> {
+pub async fn check_connection(db: &DatabaseConnection) -> Result<(), DbErr> {
     db.ping().await
-}
-
-fn redact_url_password(url: &str) -> String {
-    if let Some(scheme_end) = url.find("://") {
-        if let Some(at_pos) = url[scheme_end + 3..].find('@') {
-            let start = scheme_end + 3;
-            let end = start + at_pos;
-            let mut out = String::with_capacity(url.len());
-            out.push_str(&url[..start]);
-            out.push_str("[REDACTED]");
-            out.push_str(&url[end..]);
-            return out;
-        }
-    }
-    url.to_string()
 }

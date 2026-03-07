@@ -12,6 +12,8 @@ use crate::api::users::routes::user_routes;
 async fn available_routes() -> impl Responder {
     web::Json(serde_json::json!({
         "available_routes": [
+            "/ (GET)",
+            "/db (GET)",
             "/api/users (GET, POST)",
             "/api/users/{id} (GET, PUT, DELETE)"
         ]
