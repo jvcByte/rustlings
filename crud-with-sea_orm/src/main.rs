@@ -51,8 +51,8 @@ async fn main() -> std::io::Result<()> {
     // Build application state and start server.
     let state = web::Data::new(AppState::new(db));
 
-    let bind_addr = env::var("BIND_ADDR").unwrap_or_else(|_| "http://127.0.0.1:8080".to_string());
-    info!("starting server at {}", &bind_addr);
+    let bind_addr = env::var("BIND_ADDR").unwrap_or_else(|_| "127.0.0.1:8080".to_string());
+    info!("starting server at https://{}", &bind_addr);
 
     HttpServer::new(move || {
         App::new()
