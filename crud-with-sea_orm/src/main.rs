@@ -56,8 +56,8 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(state.clone())
             .wrap(Logger::default())
+            .app_data(state.clone())
             .route("/", web::get().to(health))
             .route("/db", web::get().to(check_db_connection))
             .configure(api::routes)
