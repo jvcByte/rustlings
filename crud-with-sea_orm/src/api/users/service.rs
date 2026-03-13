@@ -98,7 +98,7 @@ impl UserService {
         let user = UserRepository::find_by_email(db, email)
             .await
             .map_err(|e| ApiError::InternalError(e.to_string()))?
-            .ok_or_else(|| ApiError::NotFound("Invalid credentials".into()))?;
+            .ok_or_else(|| ApiError::NotFound("Invalid Email Address".into()))?;
 
         // Extract password_hash and token_version directly (concrete types in entity)
         let stored_hash: String = user.password_hash;
@@ -107,7 +107,7 @@ impl UserService {
         // Verify password
         let ok = verify_password(&stored_hash, password)?;
         if !ok {
-            return Err(ApiError::NotFound("Invalid credentials".into()));
+            return Err(ApiError::NotFound("Invalid Password".into()));
         }
 
         // Build auth config from env (JWT secret, expiry)
