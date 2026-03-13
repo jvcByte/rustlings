@@ -6,7 +6,10 @@
 
 use actix_web::{Responder, web};
 
-mod users;
+pub mod auth;
+mod refresh_tokens;
+pub mod users;
+use crate::api::auth::routes::auth_routes;
 use crate::api::users::routes::user_routes;
 
 async fn available_routes() -> impl Responder {
@@ -14,8 +17,16 @@ async fn available_routes() -> impl Responder {
         "available_routes": [
             "/ (GET)",
             "/db (GET)",
+            "/api (GET)",
             "/api/users (GET, POST)",
-            "/api/users/{id} (GET, PUT, DELETE)"
+            "/api/users/{id} (GET, PUT, DELETE)",
+            "/api/auth/register (POST)",
+            "/api/auth/login (POST)",
+            "/api/auth/refresh (POST)",
+            "/api/auth/logout (POST)",
+            "/api/auth/logout-all (POST)",
+            "/api/auth/me (GET)",
+            "/api/auth/cleanup-tokens (POST)"
         ]
     }))
 }
@@ -29,7 +40,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::scope("/api")
             .route("", web::get().to(available_routes))
             // Keep the API surface stable by grouping feature scopes under `/api`.
-            // Each feature module (e.g. `users`) should expose `routes`.
-            .configure(user_routes),
+            // Each feature module (e.g. `users`, `auth`) should expose `routes`.
+            .configure(user_routes)
+            .configure(auth_routes),
     );
 }

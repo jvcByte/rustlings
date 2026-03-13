@@ -1,5 +1,5 @@
 use crate::shared::models::users::{User, user};
-use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use uuid::Uuid;
 
 pub struct UserRepository;
@@ -20,8 +20,12 @@ impl UserRepository {
         db: &DatabaseConnection,
         email: &str,
     ) -> Result<Option<user::Model>, sea_orm::DbErr> {
-        let users = User::find().all(db).await?;
-        Ok(users.into_iter().find(|u| u.email == email))
+        // Use a DB-level filter so the database can perform the lookup (and use an index).
+        // This is more efficient and avoids loading all rows into memory.
+        User::find()
+            .filter(user::Column::Email.eq(email.to_owned()))
+            .one(db)
+            .await
     }
 
     pub async fn insert(

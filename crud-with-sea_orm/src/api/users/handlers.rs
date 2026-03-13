@@ -9,6 +9,20 @@ use crate::shared::errors::api_errors::ApiError;
 use actix_web::{HttpResponse, Result, web};
 use uuid::Uuid;
 
+/// Create (register) a new user.
+///
+/// This mirrors the existing `create_user` behavior but is provided as an explicit
+/// `register` endpoint to make the authentication flow clearer when adding auth later.
+pub async fn register_user(
+    body: web::Json<CreateUser>,
+    state: web::Data<AppState>,
+) -> Result<HttpResponse, ApiError> {
+    // Reuse the service layer for creation/validation.
+    let id = UserService::create_user(&state.db, body.into_inner()).await?;
+    Ok(HttpResponse::Created().body(format!("User created with id {}", id)))
+}
+
+/// Existing handlers retained for backward compatibility / completeness.
 pub async fn create_user(
     body: web::Json<CreateUser>,
     state: web::Data<AppState>,

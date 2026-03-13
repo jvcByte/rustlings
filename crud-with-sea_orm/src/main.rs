@@ -30,7 +30,7 @@ async fn check_db_connection(state: web::Data<AppState>) -> impl Responder {
 async fn main() -> std::io::Result<()> {
     // Load .env (if present) and initialize logging.
     dotenv().ok();
-    let env = Env::default().filter_or("RUST_LOG", "info");
+    let env = Env::default().filter_or("RUST_LOG", "debug");
     env_logger::Builder::from_env(env).init();
 
     // Initialize DB connection via the postgres module. This requires the
