@@ -3,6 +3,7 @@ use crate::api::users::repository::UserRepository;
 use crate::shared::auth::{AuthConfig, create_jwt, hash_password, verify_password};
 use crate::shared::errors::api_errors::ApiError;
 use crate::shared::models::users::user::ActiveModel;
+use chrono::Utc;
 use sea_orm::{DatabaseConnection, Set};
 use uuid::Uuid;
 
@@ -15,40 +16,6 @@ use uuid::Uuid;
 pub struct UserService;
 
 impl UserService {
-    pub async fn create_user(db: &DatabaseConnection, input: CreateUser) -> Result<Uuid, ApiError> {
-        // Validation
-        if input.name.trim().is_empty() {
-            return Err(ApiError::BadRequest("Name cannot be empty".into()));
-        }
-
-        if input.email.trim().is_empty() {
-            return Err(ApiError::BadRequest("Email cannot be empty".into()));
-        }
-
-        if UserRepository::find_by_email(db, &input.email)
-            .await
-            .map_err(|_| ApiError::InternalError("DB error".to_string()))?
-            .is_some()
-        {
-            return Err(ApiError::Conflict("Email already exists".into()));
-        }
-
-        let id = Uuid::new_v4();
-        let active = ActiveModel {
-            id: Set(id),
-            name: Set(input.name),
-            email: Set(input.email),
-            created_at: Set(None),
-            ..Default::default()
-        };
-
-        UserRepository::insert(db, active)
-            .await
-            .map_err(|_| ApiError::InternalError("DB insert failed".to_string()))?;
-
-        Ok(id)
-    }
-
     /// Register a new user with a password.
     ///
     /// Production considerations implemented here:
@@ -77,7 +44,7 @@ impl UserService {
         // Check uniqueness
         if UserRepository::find_by_email(db, &input.email)
             .await
-            .map_err(|_| ApiError::InternalError("DB error".to_string()))?
+            .map_err(|e| ApiError::InternalError(e.to_string()))?
             .is_some()
         {
             return Err(ApiError::Conflict("Email already exists".into()));
@@ -96,7 +63,7 @@ impl UserService {
             password_hash: Set(password_hash),
             token_version: Set(0),
             is_active: Set(true),
-            created_at: Set(None),
+            created_at: Set(Some(Utc::now().into())),
             ..Default::default()
         };
 
@@ -130,7 +97,7 @@ impl UserService {
         // Fetch user (repository returns the full model including password_hash and token_version)
         let user = UserRepository::find_by_email(db, email)
             .await
-            .map_err(|_| ApiError::InternalError("DB error".to_string()))?
+            .map_err(|e| ApiError::InternalError(e.to_string()))?
             .ok_or_else(|| ApiError::NotFound("Invalid credentials".into()))?;
 
         // Extract password_hash and token_version directly (concrete types in entity)
@@ -247,7 +214,10 @@ impl UserService {
 
     /// Increment a user's token_version to invalidate all issued access tokens.
     /// This is useful for logout or security events (password change, etc).
-    pub async fn increment_token_version(db: &DatabaseConnection, id: Uuid) -> Result<(), ApiError> {
+    pub async fn increment_token_version(
+        db: &DatabaseConnection,
+        id: Uuid,
+    ) -> Result<(), ApiError> {
         let user = UserRepository::find_by_id(db, id)
             .await
             .map_err(|_| ApiError::InternalError("DB error".to_string()))?

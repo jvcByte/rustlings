@@ -18,7 +18,7 @@ async fn available_routes() -> impl Responder {
             "/ (GET)",
             "/db (GET)",
             "/api (GET)",
-            "/api/users (GET, POST)",
+            "/api/users (GET)",
             "/api/users/{id} (GET, PUT, DELETE)",
             "/api/auth/register (POST)",
             "/api/auth/login (POST)",
