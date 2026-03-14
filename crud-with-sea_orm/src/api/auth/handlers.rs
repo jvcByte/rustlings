@@ -49,7 +49,7 @@ pub async fn register(
     };
 
     // Create refresh token (opaque), hash it and store in DB with expiry
-    let cfg = AuthConfig::from_env()?;
+    let cfg = AuthConfig::get();
     let refresh_plain = generate_refresh_token();
     let refresh_hash = hash_refresh_token(&refresh_plain)?;
     let refresh_expires_at = Some(DateTimeWithTimeZone::from(
@@ -106,7 +106,7 @@ pub async fn login(
     };
 
     // Compute expiry from config
-    let cfg = AuthConfig::from_env()?;
+    let cfg = AuthConfig::get();
     let expires_in = cfg.access_exp_minutes * 60;
 
     // Create and persist refresh token with expiry
@@ -177,7 +177,7 @@ pub async fn refresh(
     }
 
     // Issue new access token with the user's current token version
-    let cfg = AuthConfig::from_env()?;
+    let cfg = AuthConfig::get();
     
     // Fetch user to get current token version
     let user = UserRepository::find_by_id(&state.db, record.user_id)

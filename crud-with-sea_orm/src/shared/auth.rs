@@ -16,14 +16,10 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, TokenData, Validation, deco
 use rand_core::{OsRng, RngCore};
 use serde::{Deserialize, Serialize};
 use std::env;
+use std::sync::OnceLock;
 use uuid::Uuid;
 
 /// JWT claims used in access tokens.
-///
-/// - `sub` is the subject (user id as a UUID string)
-/// - `exp` expiry timestamp (as seconds since epoch)
-/// - `tv` token version (integer) used to allow global token revocation by incrementing
-///   user's `token_version` in the DB; tokens with mismatching `tv` are considered invalid.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,
@@ -31,12 +27,7 @@ pub struct Claims {
     pub tv: i32,
 }
 
-/// Authentication configuration (loaded from environment).
-///
-/// Environment variables:
-/// - `JWT_SECRET` (required): HMAC secret used to sign JWTs (HS256).
-/// - `JWT_EXP_MINUTES` (optional, default 15): access token lifetime in minutes.
-/// - `REFRESH_TOKEN_EXP_DAYS` (optional, default 30): refresh token lifetime in days.
+/// Authentication configuration — loaded once at startup via `init()`.
 #[derive(Clone, Debug)]
 pub struct AuthConfig {
     pub secret: String,
@@ -44,23 +35,43 @@ pub struct AuthConfig {
     pub refresh_exp_days: i64,
 }
 
+static AUTH_CONFIG: OnceLock<AuthConfig> = OnceLock::new();
+
 impl AuthConfig {
-    pub fn from_env() -> Result<Self, ApiError> {
-        let secret = env::var("JWT_SECRET")
-            .map_err(|_| ApiError::InternalError("JWT_SECRET must be set".into()))?;
-        let access_exp_minutes = env::var("JWT_EXP_MINUTES")
-            .ok()
-            .and_then(|v| v.parse::<i64>().ok())
-            .unwrap_or(15);
-        let refresh_exp_days = env::var("REFRESH_TOKEN_EXP_DAYS")
-            .ok()
-            .and_then(|v| v.parse::<i64>().ok())
-            .unwrap_or(30);
-        Ok(Self {
-            secret,
-            access_exp_minutes,
-            refresh_exp_days,
-        })
+    /// Call once at application startup (in `main`). Panics if required vars are missing.
+    pub fn init() {
+        let secret = env::var("JWT_SECRET").expect(".env: JWT_SECRET must be set");
+
+        let access_exp_minutes = match env::var("JWT_EXP_MINUTES") {
+            Ok(v) => v.parse::<i64>().unwrap_or_else(|_| {
+                eprintln!("WARNING: Invalid JWT_EXP_MINUTES, defaulting to 15");
+                15
+            }),
+            Err(_) => 15,
+        };
+
+        let refresh_exp_days = match env::var("REFRESH_TOKEN_EXP_DAYS") {
+            Ok(v) => v.parse::<i64>().unwrap_or_else(|_| {
+                eprintln!("WARNING: Invalid REFRESH_TOKEN_EXP_DAYS, defaulting to 30");
+                30
+            }),
+            Err(_) => 30,
+        };
+
+        AUTH_CONFIG
+            .set(AuthConfig {
+                secret,
+                access_exp_minutes,
+                refresh_exp_days,
+            })
+            .expect("AuthConfig already initialized");
+    }
+
+    /// Get the global config. Panics if `init()` was not called first.
+    pub fn get() -> &'static AuthConfig {
+        AUTH_CONFIG
+            .get()
+            .expect("AuthConfig not initialized — call AuthConfig::init() at startup")
     }
 }
 

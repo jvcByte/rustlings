@@ -37,9 +37,8 @@ async fn auth_lifecycle() {
     }
 
     // Initialize DB connection using the application's shared postgres initializer.
-    // NOTE: This assumes the project exposes `shared::config::postgres::init_db`
-    // as a public function through the crate root. If your project structure
-    // differs (e.g. only a binary without a library), adapt accordingly.
+    // NOTE: AuthConfig must be initialized before any auth operations.
+    crud_with_sea_orm::shared::auth::AuthConfig::init();
     let db = match crud_with_sea_orm::shared::config::postgres::init_db().await {
         Ok(db) => db,
         Err(e) => panic!("failed to init db: {}", e),

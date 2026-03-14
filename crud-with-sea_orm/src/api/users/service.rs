@@ -111,7 +111,7 @@ impl UserService {
         }
 
         // Build auth config from env (JWT secret, expiry)
-        let cfg = AuthConfig::from_env()?;
+        let cfg = AuthConfig::get();
 
         // Create token
         let token = create_jwt(user.id, tv, &cfg)?;

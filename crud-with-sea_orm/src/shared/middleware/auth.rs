@@ -81,14 +81,7 @@ impl FromRequest for AuthenticatedUser {
             }
 
             // 3) Decode & validate token using the shared helper (centralizes JWT config & validation)
-            let cfg = match AuthConfig::from_env() {
-                Ok(c) => c,
-                Err(_) => {
-                    return Err(AuthenticatedUser::err_unauthorized(
-                        "JWT secret is not configured",
-                    ));
-                }
-            };
+            let cfg = AuthConfig::get();
             let token_data = match decode_jwt(token, &cfg) {
                 Ok(td) => td,
                 Err(_) => {

@@ -33,6 +33,11 @@ async fn main() -> std::io::Result<()> {
     let env = Env::default().filter_or("RUST_LOG", "debug");
     env_logger::Builder::from_env(env).init();
 
+    // Validate and cache all config from environment at startup.
+    // This panics immediately if required vars (e.g. JWT_SECRET) are missing,
+    // rather than surfacing as a 500 error on the first authenticated request.
+    shared::auth::AuthConfig::init();
+
     // Initialize DB connection via the postgres module. This requires the
     // `DATABASE_URL` environment variable to be set. No secrets are hardcoded here.
     let db = match postgres::init_db().await {
