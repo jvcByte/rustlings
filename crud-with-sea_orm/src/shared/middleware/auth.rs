@@ -4,7 +4,7 @@ use sea_orm::EntityTrait;
 use uuid::Uuid;
 
 use crate::shared::AppState;
-use crate::shared::auth::{AuthConfig, decode_jwt};
+use crate::shared::utils::auth_utils::{AuthConfig, decode_jwt};
 
 /// Authenticated user extracted by the middleware / extractor.
 /// This contains only the fields commonly needed by handlers. You can expand it as needed.

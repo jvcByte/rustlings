@@ -2,6 +2,7 @@ mod api;
 mod shared;
 
 use crate::shared::config::postgres::check_connection;
+use crate::shared::utils::auth_utils::AuthConfig;
 use crate::shared::{AppState, config::postgres};
 use actix_web::{App, HttpResponse, HttpServer, Responder, middleware::Logger, web};
 use dotenvy::dotenv;
@@ -36,7 +37,7 @@ async fn main() -> std::io::Result<()> {
     // Validate and cache all config from environment at startup.
     // This panics immediately if required vars (e.g. JWT_SECRET) are missing,
     // rather than surfacing as a 500 error on the first authenticated request.
-    shared::auth::AuthConfig::init();
+    AuthConfig::init();
 
     // Initialize DB connection via the postgres module. This requires the
     // `DATABASE_URL` environment variable to be set. No secrets are hardcoded here.

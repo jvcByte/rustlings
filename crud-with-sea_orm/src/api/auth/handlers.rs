@@ -4,9 +4,12 @@ use crate::api::refresh_tokens::repository::RefreshTokenRepository;
 use crate::api::users::dto::{CreateUser, UserResponse};
 use crate::api::users::repository::UserRepository;
 use crate::api::users::service::UserService;
-use crate::shared::auth::{AuthConfig, create_jwt, generate_refresh_token, hash_refresh_token, refresh_expiry_timestamp};
 use crate::shared::errors::api_errors::ApiError;
 use crate::shared::middleware::auth::AuthenticatedUser;
+use crate::shared::utils::auth_utils::{
+    AuthConfig, create_jwt, generate_refresh_token, hash_refresh_token, refresh_expiry_timestamp,
+    verify_password,
+};
 use actix_web::{HttpResponse, Result, web};
 use chrono::{DateTime, Utc};
 use sea_orm::prelude::DateTimeWithTimeZone;
@@ -54,7 +57,7 @@ pub async fn register(
     let refresh_hash = hash_refresh_token(&refresh_plain)?;
     let refresh_expires_at = Some(DateTimeWithTimeZone::from(
         DateTime::from_timestamp(refresh_expiry_timestamp(&cfg), 0)
-            .ok_or_else(|| ApiError::InternalError("Failed to compute expiry".into()))?
+            .ok_or_else(|| ApiError::InternalError("Failed to compute expiry".into()))?,
     ));
 
     let _ =
@@ -114,7 +117,7 @@ pub async fn login(
     let refresh_hash = hash_refresh_token(&refresh_plain)?;
     let refresh_expires_at = Some(DateTimeWithTimeZone::from(
         DateTime::from_timestamp(refresh_expiry_timestamp(&cfg), 0)
-            .ok_or_else(|| ApiError::InternalError("Failed to compute expiry".into()))?
+            .ok_or_else(|| ApiError::InternalError("Failed to compute expiry".into()))?,
     ));
 
     let _ =
@@ -152,14 +155,14 @@ pub async fn refresh(
 
     let mut matching_record = None;
     for token in all_tokens {
-        if let Ok(true) = crate::shared::auth::verify_password(&token.token_hash, &req.refresh_token) {
+        if let Ok(true) = verify_password(&token.token_hash, &req.refresh_token) {
             matching_record = Some(token);
             break;
         }
     }
 
-    let record = matching_record
-        .ok_or_else(|| ApiError::NotFound("Invalid refresh token".into()))?;
+    let record =
+        matching_record.ok_or_else(|| ApiError::NotFound("Invalid refresh token".into()))?;
 
     // Check revoked
     if record.revoked {
@@ -178,13 +181,13 @@ pub async fn refresh(
 
     // Issue new access token with the user's current token version
     let cfg = AuthConfig::get();
-    
+
     // Fetch user to get current token version
     let user = UserRepository::find_by_id(&state.db, record.user_id)
         .await
         .map_err(|_| ApiError::InternalError("DB error".to_string()))?
         .ok_or_else(|| ApiError::NotFound("User not found".into()))?;
-    
+
     let access_token = create_jwt(record.user_id, user.token_version, &cfg)?;
     let expires_in = cfg.access_exp_minutes * 60;
 
@@ -193,11 +196,12 @@ pub async fn refresh(
     let new_hash = hash_refresh_token(&new_plain)?;
     let new_expires_at = Some(DateTimeWithTimeZone::from(
         DateTime::from_timestamp(refresh_expiry_timestamp(&cfg), 0)
-            .ok_or_else(|| ApiError::InternalError("Failed to compute expiry".into()))?
+            .ok_or_else(|| ApiError::InternalError("Failed to compute expiry".into()))?,
     ));
-    let _new_record = RefreshTokenRepository::create(&state.db, record.user_id, new_hash, new_expires_at)
-        .await
-        .map_err(|_| ApiError::InternalError("Failed to store refresh token".into()))?;
+    let _new_record =
+        RefreshTokenRepository::create(&state.db, record.user_id, new_hash, new_expires_at)
+            .await
+            .map_err(|_| ApiError::InternalError("Failed to store refresh token".into()))?;
     let _ = RefreshTokenRepository::revoke_by_id(&state.db, record.id)
         .await
         .map_err(|_| ApiError::InternalError("Failed to revoke old refresh token".into()))?;
@@ -228,14 +232,14 @@ pub async fn logout(
 
     let mut matching_record = None;
     for token in all_tokens {
-        if let Ok(true) = crate::shared::auth::verify_password(&token.token_hash, &req.refresh_token) {
+        if let Ok(true) = verify_password(&token.token_hash, &req.refresh_token) {
             matching_record = Some(token);
             break;
         }
     }
 
-    let record = matching_record
-        .ok_or_else(|| ApiError::NotFound("Invalid refresh token".into()))?;
+    let record =
+        matching_record.ok_or_else(|| ApiError::NotFound("Invalid refresh token".into()))?;
 
     // Revoke the refresh token
     let _ = RefreshTokenRepository::revoke_by_id(&state.db, record.id)
@@ -289,9 +293,7 @@ pub async fn logout_all(
 ///
 /// In production, this should be called periodically via a cron job or background task.
 /// For now, we expose it as an endpoint (should be protected with admin auth in production).
-pub async fn cleanup_expired_tokens(
-    state: web::Data<AppState>,
-) -> Result<HttpResponse, ApiError> {
+pub async fn cleanup_expired_tokens(state: web::Data<AppState>) -> Result<HttpResponse, ApiError> {
     let deleted = RefreshTokenRepository::delete_expired(&state.db)
         .await
         .map_err(|_| ApiError::InternalError("Failed to delete expired tokens".into()))?;

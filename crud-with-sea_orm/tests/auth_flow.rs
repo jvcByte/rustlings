@@ -1,4 +1,5 @@
 use actix_web::{App, test, web};
+use crud_with_sea_orm::shared::utils::auth_utils::AuthConfig;
 use migration::MigratorTrait;
 use serde_json::Value;
 use std::env;
@@ -30,7 +31,9 @@ async fn auth_lifecycle() {
     if let Ok(_) = env::var("TEST_DATABASE_URL") {
         eprintln!("Using TEST_DATABASE_URL for integration tests");
     } else if env::var("DATABASE_URL").is_ok() {
-        eprintln!("WARNING: Using production DATABASE_URL for tests. Consider setting TEST_DATABASE_URL.");
+        eprintln!(
+            "WARNING: Using production DATABASE_URL for tests. Consider setting TEST_DATABASE_URL."
+        );
     } else {
         eprintln!("Skipping integration test: Neither DATABASE_URL nor TEST_DATABASE_URL is set");
         return;
@@ -38,7 +41,7 @@ async fn auth_lifecycle() {
 
     // Initialize DB connection using the application's shared postgres initializer.
     // NOTE: AuthConfig must be initialized before any auth operations.
-    crud_with_sea_orm::shared::auth::AuthConfig::init();
+    AuthConfig::init();
     let db = match crud_with_sea_orm::shared::config::postgres::init_db().await {
         Ok(db) => db,
         Err(e) => panic!("failed to init db: {}", e),

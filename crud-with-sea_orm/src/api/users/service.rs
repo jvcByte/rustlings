@@ -1,8 +1,8 @@
 use crate::api::users::dto::{CreateUser, UpdateUser, UserResponse};
 use crate::api::users::repository::UserRepository;
-use crate::shared::auth::{AuthConfig, create_jwt, hash_password, verify_password};
 use crate::shared::errors::api_errors::ApiError;
 use crate::shared::models::users::user::ActiveModel;
+use crate::shared::utils::auth_utils::{AuthConfig, create_jwt, hash_password, verify_password};
 use chrono::Utc;
 use sea_orm::{DatabaseConnection, Set};
 use uuid::Uuid;
