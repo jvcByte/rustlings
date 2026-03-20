@@ -14,7 +14,7 @@
 // There are at least two ways to implement this that are both correct. But one
 // is a lot shorter!
 
-use std::{num::ParseIntError, result};
+use std::num::ParseIntError;
 
 fn total_cost(item_quantity: &str) -> Result<i32, ParseIntError> {
     let processing_fee = 1;
