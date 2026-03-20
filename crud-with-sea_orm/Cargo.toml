@@ -5,7 +5,7 @@ edition = "2024"
 description = "A small Actix Web + SeaORM CRUD example using Postgres"
 license = "MIT OR Apache-2.0"
 repository = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["jvcByte: jvc8463@gmail.com"]
 
 
 [dependencies]

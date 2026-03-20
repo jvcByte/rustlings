@@ -63,7 +63,7 @@ pub async fn register(
     let _ =
         RefreshTokenRepository::create(&state.db, user_model.id, refresh_hash, refresh_expires_at)
             .await
-            .map_err(|_| ApiError::InternalError("Failed to store refresh token".into()))?;
+            .map_err(|e| ApiError::InternalError(format!("Failed to store refresh token: {}", e)))?;
 
     // Create access token
     let access_token = create_jwt(id, user_model.token_version, &cfg)?;
