@@ -7,7 +7,7 @@
 fn generate_nametag_text(name: String) -> Result<String, String> {
     if name.is_empty() {
         // Empty names aren't allowed
-        Err("Name is empty".to_string())
+        Err("Empty names aren't allowed".to_string())
     } else {
         Ok(format!("Hi! My name is {name}"))
     }
@@ -19,7 +19,7 @@ fn main() {
     assert_eq!(result, Ok("Hi! My name is Beyoncé".to_string()));
 
     let result = generate_nametag_text("".to_string());
-    assert_eq!(result, Err("Name is empty".to_string()));
+    assert_eq!(result, Err("Empty names aren't allowed".to_string()));
 }
 
 #[cfg(test)]
