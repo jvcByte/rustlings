@@ -15,7 +15,7 @@ fn total_cost(item_quantity: &str) -> Result<i32, ParseIntError> {
 
 // TODO: Fix the compiler error by changing the signature and body of the
 // `main` function.
-fn main() -> Result<(), ParseIntError> {
+fn main() {
     let mut tokens = 100;
     let pretend_user_input = "8";
 
@@ -28,6 +28,4 @@ fn main() -> Result<(), ParseIntError> {
         tokens -= cost;
         println!("You now have {tokens} tokens.");
     }
-
-    Ok(())
 }
