@@ -1,9 +1,9 @@
 struct Stack<T> {
-    push: T,
+    push: Option<T>,
     pop: Option<T>,
     peek: Option<&T>,
     rollback: usize,
-    len: usize & bool,
+    len: usize,
 }
 
 impl<T> Stack<T> {
@@ -27,7 +27,7 @@ impl<T> Stack<T> {
             return None;
         }
         let item = self.push.take();
-        self.pop = item.clone();
+        self.pop = item.as_ref();
         self.len -= 1;
         item
     }
